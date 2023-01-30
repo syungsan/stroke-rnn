@@ -17,7 +17,7 @@ from keras.callbacks import CSVLogger, EarlyStopping, TensorBoard, ModelCheckpoi
 from sklearn.manifold import TSNE
 import glob
 
-STROKE_DICTIONARIES = {6: ["汚", "共", "会"], 7: ["求"], 8: ["雨", "京", "到"]} # 7: ["求", "初", "芸"]
+STROKE_DICTIONARIES = {6: ["汚", "共", "会"], 7: ["求", "初", "芸"], 8: ["雨", "京", "到"]}
 FEATURE_MAX_LENGTH = 3 * 2 # 微分成分含めた(3) × xy成分(2)
 
 

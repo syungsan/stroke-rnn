@@ -1,0 +1,24 @@
+【Python/Keras】CNNで手書き文字認識(mnist)の学習・識別
+https://algorithm.joho.info/programming/python/keras-cnn-mnist/
+
+Python3 PyQt5でペイントを作ろう^ω^
+https://qiita.com/pto8913/items/9ed90a09b69d5b336ce0
+
+【AI】Deep Metric Learning
+https://qiita.com/jw-automation/items/7bbe1c872fcec7fa6c1d
+
+k近傍法とk平均法の違いと詳細
+https://qiita.com/NoriakiOshita/items/698056cb74819624461f
+
+
+
+PyInstaller Command （それぞれのオプションをスペースで連結）
+pyinstaller --noconfirm --onedir --console
+--icon "D:/GitHub/Stroke-RNN/stroke-rnn/icons/simple_icon.ico"
+--add-data "D:/GitHub/Stroke-RNN/stroke-rnn/icons;icons/"
+--add-data "D:/GitHub/Stroke-RNN/stroke-rnn/models;models/"
+--exclude-module "matplotlib"
+--hidden-import "sklearn" --hidden-import "sklearn.utils._weight_vector"
+--hidden-import "sklearn" --hidden-import "sklearn.metrics._pairwise_distances_reduction._datasets_pair"
+--hidden-import "sklearn" --hidden-import "sklearn.metrics._pairwise_distances_reduction._middle_term_computer"
+"D:/GitHub/Stroke-RNN/stroke-rnn/input_gui.py"
