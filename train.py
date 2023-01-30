@@ -125,7 +125,7 @@ def main(epochs=5, batch_size=128):
     file_paths = glob.glob("./data/*.csv")
     num_of_strokes = [int(os.path.splitext(os.path.basename(f))[0][-1]) for f in file_paths]
 
-    for index, file_path in enumerate(file_paths):
+    for index in range(len(file_paths)):
 
         strokes = ft.read_csv(file_path="./data/train_{}.csv".format(num_of_strokes[index]), delimiter=",")
         X, y = get_train(train2ds=strokes, num_of_stroke=num_of_strokes[index])
@@ -189,6 +189,9 @@ def main(epochs=5, batch_size=128):
         score = model.evaluate(X_test, y_test, verbose=0)
         print("Test loss of {} stroke: {}".format(num_of_strokes[index], score[0]))
         print("Test accuracy of {} stroke: {}".format(num_of_strokes[index], score[1]))
+
+        recog_results = [["accuracy", "loss"], [score[1], score[0]]]
+        ft.write_csv("./models/{}/recog_result.csv".format(num_of_strokes[index]), recog_results)
 
         if os.path.isdir("./graphs"):
             shutil.rmtree("./graphs")
