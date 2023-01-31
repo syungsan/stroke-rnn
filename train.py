@@ -113,7 +113,7 @@ def lof(output_model, X_train, num_of_stroke):
     print("anomaly detection model creating...")
     # contamination = 学習データにおける外れ値の割合（大きいほど厳しく小さいほど緩い）
     # example-> k(n_neighbors=10**0.5=3) 10=num of class
-    model = LocalOutlierFactor(n_neighbors=2, novelty=True, contamination=0.02) # 20, novelty=True, contamination=0.001)
+    model = LocalOutlierFactor(n_neighbors=3, novelty=True, contamination=0.02) # 20, novelty=True, contamination=0.001)
     model.fit(X_train)
 
     joblib.dump(lof_scaler, "./models/{}/lof_scaler.joblib".format(num_of_stroke))

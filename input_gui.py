@@ -287,7 +287,6 @@ class MainWindow(QMainWindow):
             return
 
         X_pred = get_feature(feature_raws=strokes)
-
         X_pred = np.array(X_pred)
         self.scaler.transform([X_pred])
 
