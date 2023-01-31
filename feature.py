@@ -136,7 +136,8 @@ def main():
             target = filename[0]
 
             strokes = read_csv(file_path=csv_path, delimiter=",")
-            if len(strokes) < num_of_strokes[index] * 2:
+
+            if len(strokes) != num_of_strokes[index] * 2:
                 continue
 
             feature = get_feature(feature_raws=strokes)

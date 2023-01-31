@@ -66,8 +66,7 @@ def plot_result(history, num_of_stroke):
 # データの分布の様子を次元を落として表示
 def plot_tsene(X, model, output_model, num_of_stroke):
 
-    # color_codes = ["red", "blue", "green", "black", "magenta", "cyan", "grey", "aqua", "springgreen", "salmon"]
-    color_codes = ["red"]
+    color_codes = ["red", "blue", "green", "black", "magenta", "cyan", "grey", "aqua", "springgreen", "salmon"]
     test_range = range(int(len(X)))
 
     output = model.predict(X)
@@ -122,6 +121,14 @@ def lof(output_model, X_train, num_of_stroke):
 
 def main(epochs=5, batch_size=128):
 
+    if os.path.isdir("./models"):
+        shutil.rmtree("./models")
+    os.mkdir("./models")
+
+    if os.path.isdir("./graphs"):
+        shutil.rmtree("./graphs")
+    os.mkdir("./graphs")
+
     file_paths = glob.glob("./data/*.csv")
     num_of_strokes = [int(os.path.splitext(os.path.basename(f))[0][-1]) for f in file_paths]
 
@@ -164,9 +171,6 @@ def main(epochs=5, batch_size=128):
 
         model.summary()
 
-        if os.path.isdir("./models"):
-            shutil.rmtree("./models")
-        os.mkdir("./models")
         os.mkdir("./models/{}".format(num_of_strokes[index]))
 
         # callback function
@@ -193,9 +197,6 @@ def main(epochs=5, batch_size=128):
         recog_results = [["accuracy", "loss"], [score[1], score[0]]]
         ft.write_csv("./models/{}/recog_result.csv".format(num_of_strokes[index]), recog_results)
 
-        if os.path.isdir("./graphs"):
-            shutil.rmtree("./graphs")
-        os.mkdir("./graphs")
         os.mkdir("./graphs/{}".format(num_of_strokes[index]))
 
         plot_result(history, num_of_stroke=num_of_strokes[index])
@@ -218,7 +219,7 @@ if __name__ == "__main__":
     answer = input("モデルを再構築しますか？ (Y/n)\n")
 
     if answer == "Y" or answer == "y" or answer == "":
-        epochs = 10
+        epochs = 50
         batch_size = 128
         main(epochs, batch_size)
     else:

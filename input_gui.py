@@ -276,6 +276,7 @@ class MainWindow(QMainWindow):
 
     def recognition(self):
 
+        STROKE_DICTIONARIES = {6: ["汚", "共", "会"], 7: ["求", "初", "芸"], 8: ["雨", "京", "到"]}
         self.canvas.save_image("./test/test.png")
 
         strokes = self.canvas.strokes
