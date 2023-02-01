@@ -94,7 +94,7 @@ def main():
                     correct += 1
 
     accuracy = correct / length_of_data * 100.0
-    print("\nFinal accuracy is " + accuracy + "%")
+    print("\nFinal accuracy is " + str(accuracy) + "%")
 
     ft.write_csv("./test/final/final_accuracy.csv", [[accuracy]])
     print("\nall process completed...")
