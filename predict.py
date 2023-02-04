@@ -18,11 +18,7 @@ class L2ConstrainLayer(tf.keras.layers.Layer):
     def call(self, inputs):
         return K.l2_normalize(inputs, axis=1) * self.alpha
 
-
-def main():
-
-    strokes = ft.read_csv(file_path="./test/test.csv", delimiter=",")
-    num_of_stroke = int(len(strokes) / 2)
+def load_models(num_of_stroke):
 
     if os.path.exists("./models/{}/model.h5".format(num_of_stroke)):
         model = load_model("./models/{}/model.h5".format(num_of_stroke), custom_objects={"L2ConstrainLayer": L2ConstrainLayer})
@@ -36,6 +32,15 @@ def main():
 
     if os.path.exists("./models/{}/lof_model.joblib".format(num_of_stroke)):
         lof_model = joblib.load("./models/{}/lof_model.joblib".format(num_of_stroke))
+
+    return model, output_model, scaler, lof_model, lof_scaler
+
+def main():
+
+    strokes = ft.read_csv(file_path="./test/test.csv", delimiter=",")
+    num_of_stroke = int(len(strokes) / 2)
+
+    model, output_model, scaler, lof_model, lof_scaler = load_models(num_of_stroke)
 
     X_pred = ft.get_feature(feature_raws=strokes)
     X_pred = np.array(X_pred)
