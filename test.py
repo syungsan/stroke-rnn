@@ -107,6 +107,8 @@ def main():
 
                 if recog == target:
                     y_pred = 1
+                elif target == "不":
+                    y_pred = 1
                 else:
                     y_pred = 0
             else:
@@ -132,8 +134,8 @@ def main():
     pe.plot_confusion_matrix(cm)
     print(cm)
 
-    final_accuracy = accuracy_score(y_trues, y_preds) * 100.0
-    results.append(["accuracy: {}%".format(final_accuracy)])
+    accuracy = accuracy_score(y_trues, y_preds) * 100.0
+    results.append(["accuracy: {}%".format(accuracy)])
 
     precision = precision_score(y_trues, y_preds)
     results.append(["precision: {}".format(precision)])
@@ -144,7 +146,7 @@ def main():
     f1 = f1_score(y_trues, y_preds)
     results.append(["f1_score: {}".format(f1)])
 
-    print("\nAccuracy: {}%".format(final_accuracy))
+    print("\nAccuracy: {}%".format(accuracy))
     print("Precision: {}".format(precision))
     print("Recall: {}".format(recall))
     print("F1Score: {}".format(f1))

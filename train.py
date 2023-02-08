@@ -82,7 +82,7 @@ def plot_tsene(X, model, output_model, num_of_stroke):
 
     plt.figure(figsize=(10, 10))
     for i in test_range:
-        plt.scatter(X_reduced[i, 0], X_reduced[i, 1], c=colors[i], marker="${}$".format(markers[i]), s=40)
+        plt.scatter(X_reduced[i, 0], X_reduced[i, 1], c=colors[i], marker="${}$".format(markers[i]), s=300)
 
     plt.savefig("./graphs/{}/t-SNE.png".format(num_of_stroke))
     plt.show()
