@@ -105,9 +105,7 @@ def main():
             if error == 1:
                 is_error = False
 
-                if recog == target:
-                    y_pred = 1
-                elif target == "不":
+                if recog == target or target == "不":
                     y_pred = 1
                 else:
                     y_pred = 0
