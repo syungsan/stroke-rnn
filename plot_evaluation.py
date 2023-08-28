@@ -7,7 +7,8 @@ from sklearn.metrics import roc_curve, auc, precision_recall_curve
 import seaborn as sns
 sns.set()
 
-def plot_confusion_matrix(cm):
+
+def plot_confusion_matrix(cm, save_dir):
 
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111)
@@ -15,10 +16,11 @@ def plot_confusion_matrix(cm):
     sns.heatmap(cm, annot=True, cmap='Blues', ax=ax, fmt='d')
     ax.set_title("Confusion Matrix")
 
-    plt.savefig("./graphs/confusion_matrix.png", format="png")
+    plt.savefig(save_dir, format="png")
     plt.show()
 
-def plot_roc_curve(y_trues, y_scores):
+
+def plot_roc_curve(y_trues, y_scores, save_dir):
 
     fpr, tpr, thresholds = roc_curve(y_trues, y_scores)
     _auc = auc(fpr, tpr)
@@ -33,14 +35,14 @@ def plot_roc_curve(y_trues, y_scores):
     plt.ylabel("True Positive Rate")
     plt.grid(True)
 
-    plt.savefig("./graphs/roc_curve.png", format="png")
+    plt.savefig(save_dir, format="png")
 
     plt.show()
     plt.close()
 
     return _auc
 
-def plot_pr_curve(y_trues, y_scores):
+def plot_pr_curve(y_trues, y_scores, save_dir):
 
     precision, recall, thresholds = precision_recall_curve(y_trues, y_scores)
 
@@ -54,7 +56,7 @@ def plot_pr_curve(y_trues, y_scores):
     plt.ylabel("Precision")
     plt.grid(True)
 
-    plt.savefig("./graphs/pr_curve.png", format="png")
+    plt.savefig(save_dir, format="png")
 
     plt.show()
     plt.close()

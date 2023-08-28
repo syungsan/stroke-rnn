@@ -8,7 +8,7 @@ from keras.models import Model
 from sklearn.neighbors import LocalOutlierFactor
 import joblib
 import keras.backend as K
-import tensorflow as tf
+import tensorflow as tf # pip install tensorflow==2.10.1
 from keras.optimizers import Adam
 from keras.utils import to_categorical
 import os
@@ -17,18 +17,24 @@ from keras.callbacks import CSVLogger, EarlyStopping, TensorBoard, ModelCheckpoi
 from sklearn.manifold import TSNE
 import glob
 
-STROKE_DICTIONARIES = {6: ["汚", "共", "会"], 7: ["求", "初", "芸"], 8: ["雨", "京", "到"]}
-FEATURE_MAX_LENGTH = 3 * 2 # 微分成分含めた(3) × xy成分(2)
+
+alpha = 5. # 16.
+stroke_dictionaries = {6: ["汚", "共", "会"], 7: ["求", "初", "芸"], 8: ["雨", "京", "到"]}
+feature_max_length = 3 * 2 # 微分成分含めた(3) × xy成分(2)
 
 
 # L2-constrained Softmax Loss
+# This is custom layer way
+# If you use trainable variables, you should write this way
+# ref : https://www.tensorflow.org/api_docs/python/tf/keras/layers/Lambda#variables
 class L2ConstrainLayer(tf.keras.layers.Layer):
 
     def __init__(self, **kwargs):
         super(L2ConstrainLayer, self).__init__(**kwargs)
-        self.alpha = tf.Variable(5.) # 30
+        self.alpha = tf.Variable(alpha)
 
     def call(self, inputs):
+        # about l2_normalize https://www.tensorflow.org/api_docs/python/tf/keras/backend/l2_normalize?hl=ja
         return K.l2_normalize(inputs, axis=1) * self.alpha
 
 
@@ -63,6 +69,7 @@ def plot_result(history, num_of_stroke):
     plt.savefig("./graphs/{}/loss.png".format(num_of_stroke))
     plt.show()
 
+
 # データの分布の様子を次元を落として表示
 def plot_tsene(X, model, output_model, num_of_stroke):
 
@@ -87,6 +94,7 @@ def plot_tsene(X, model, output_model, num_of_stroke):
     plt.savefig("./graphs/{}/t-SNE.png".format(num_of_stroke))
     plt.show()
 
+
 def get_train(train2ds, num_of_stroke):
 
     Xs = []
@@ -94,16 +102,17 @@ def get_train(train2ds, num_of_stroke):
 
     for train1ds in train2ds:
         Xs.append(train1ds[1:])
-        ys.append(STROKE_DICTIONARIES[num_of_stroke].index(train1ds[0]))
+        ys.append(stroke_dictionaries[num_of_stroke].index(train1ds[0]))
 
     X = [[float(x) for x in y] for y in Xs]
 
     return np.array(X), ys
 
+
 # 異常検出モデルの作成
 def lof(output_model, X_train, num_of_stroke):
 
-    X_train = output_model.predict(X_train)
+    X_train = output_model.predict(X_train, batch_size=1)
     X_train = X_train.reshape((len(X_train), -1))
 
     lof_scaler = MinMaxScaler()
@@ -111,13 +120,21 @@ def lof(output_model, X_train, num_of_stroke):
     lof_scaler.transform(X_train)
 
     print("anomaly detection model creating...")
+
     # contamination = 学習データにおける外れ値の割合（大きいほど厳しく小さいほど緩い）
     # example-> k(n_neighbors=10**0.5=3) 10=num of class
-    model = LocalOutlierFactor(n_neighbors=3, novelty=True, contamination=0.07) # 20, novelty=True, contamination=0.001)
-    model.fit(X_train)
+    model = LocalOutlierFactor(n_neighbors=3, novelty=True, contamination=0.07) # n_neighbors=3, novelty=True, contamination=0.07)
+
+    if len(X_train) >= 1000:
+        train_length = 1000
+    else:
+        train_length = len(X_train)
+
+    model.fit(X_train[:train_length])
 
     joblib.dump(lof_scaler, "./models/{}/lof_scaler.joblib".format(num_of_stroke))
     joblib.dump(model, "./models/{}/lof_model.joblib".format(num_of_stroke), compress=True)
+
 
 def main(epochs=5, batch_size=128):
 
@@ -138,7 +155,7 @@ def main(epochs=5, batch_size=128):
         X, y = get_train(train2ds=strokes, num_of_stroke=num_of_strokes[index])
 
         # one-hot vector形式に変換する
-        num_of_category = len(STROKE_DICTIONARIES[num_of_strokes[index]])
+        num_of_category = len(stroke_dictionaries[num_of_strokes[index]])
         y = to_categorical(y, num_of_category)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
@@ -147,10 +164,10 @@ def main(epochs=5, batch_size=128):
         scaler.transform(X_train)
         scaler.transform(X_test)
 
-        time_series_max_length = ft.SECTION_DIVISION_NUMBER * num_of_strokes[index]
+        time_series_max_length = ft.interval_division_number * num_of_strokes[index]
 
-        X_train = np.reshape(X_train, (X_train.shape[0], time_series_max_length, FEATURE_MAX_LENGTH), order="F")
-        X_test = np.reshape(X_test, (X_test.shape[0], time_series_max_length, FEATURE_MAX_LENGTH), order="F")
+        X_train = np.reshape(X_train, (X_train.shape[0], time_series_max_length, feature_max_length), order="F")
+        X_test = np.reshape(X_test, (X_test.shape[0], time_series_max_length, feature_max_length), order="F")
 
         #Initializing model
         model = keras.models.Sequential()
@@ -161,6 +178,15 @@ def main(epochs=5, batch_size=128):
         model.add(keras.layers.LSTM(128))
         model.add(keras.layers.Dense(256, activation='relu'))
         model.add(keras.layers.Dropout(0.2))
+
+        """
+        #If you don't need to learn alpha , you can choose below way too.
+        alpha = 30
+        def l2_constrain(x):
+            return alpha * K.l2_normalize(x, axis=1)
+        model.add(layers.Lambda(l2_constrain))
+        """
+
         model.add(L2ConstrainLayer())
         model.add(keras.layers.Dense(num_of_category, activation='softmax'))
 
@@ -183,10 +209,11 @@ def main(epochs=5, batch_size=128):
         #Fitting data to the model
         history = model.fit(
             x=X_train, y=y_train,
-            steps_per_epoch=X_train.shape[0] // batch_size,
+            # steps_per_epoch=X_train.shape[0] // batch_size,
+            batch_size=batch_size,
             epochs=epochs,
             validation_split=0.1,
-            callbacks=[csv_cb, cp_cb, es_cb, tb_cb],
+            callbacks=[csv_cb, cp_cb, tb_cb], # , es_cb],
             verbose=1)
 
         # result
@@ -206,6 +233,7 @@ def main(epochs=5, batch_size=128):
 
         output_model = Model(inputs=model.input, outputs=model.layers[-2].output)
         plot_tsene(X=X_test, model=model, output_model=output_model, num_of_stroke=num_of_strokes[index])
+
         lof(output_model=output_model, X_train=X_train, num_of_stroke=num_of_strokes[index])
 
         K.clear_session()
